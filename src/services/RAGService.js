@@ -2646,7 +2646,7 @@ Rules:
       const addDischargeLog_res = await addDischargeLog(user_id, {
         type: data.type,
         color: data.color,
-        bleeding: data.bleeding || 'no',
+        bleeding: data.bleeding === true ? 'yes' : data.bleeding || 'no',
         week_number: data.week_number || userContext?.current_week || 12,
         note: data.note || '',
       });

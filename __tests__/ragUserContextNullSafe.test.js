@@ -122,4 +122,64 @@ describe('RAGService null userContext safe handling', () => {
       ending_week: 12,
     }));
   });
+
+  it('prefers an explicit week over the populated context week', async () => {
+    const result = await ragService.logWeight(
+      {weight: 65, week_number: 20},
+      {current_week: 18},
+    );
+    expect(result.success).toBe(true);
+    expect(addWeight).toHaveBeenCalledWith(
+      '1',
+      expect.objectContaining({
+        weight: 65,
+        week_number: 20,
+      }),
+    );
+  });
+
+  it('uses the populated context week when no explicit week is given', async () => {
+    const result = await ragService.logWeight(
+      {weight: 65},
+      {current_week: 18},
+    );
+    expect(result.success).toBe(true);
+    expect(addWeight).toHaveBeenCalledWith(
+      '1',
+      expect.objectContaining({
+        weight: 65,
+        week_number: 18,
+      }),
+    );
+  });
+
+  it('prefers an explicit task week over the populated context week', async () => {
+    const result = await ragService.createTask(
+      {title: 'Prenatal Visit', week: 20},
+      {current_week: 18},
+    );
+    expect(result.success).toBe(true);
+    expect(addTask).toHaveBeenCalledWith(
+      '1',
+      expect.objectContaining({
+        title: 'Prenatal Visit',
+        starting_week: 20,
+        ending_week: 20,
+      }),
+    );
+  });
+
+  it('normalizes boolean true bleeding value to yes when logging discharge', async () => {
+    const result = await ragService.logDischarge(
+      {color: 'red', bleeding: true},
+      null,
+    );
+    expect(result.success).toBe(true);
+    expect(addDischargeLog).toHaveBeenCalledWith(
+      '1',
+      expect.objectContaining({
+        bleeding: 'yes',
+      }),
+    );
+  });
 });
